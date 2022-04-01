@@ -1,6 +1,17 @@
 import pymysql
 
+def sixty2ten(data_input):
+    for i in range(len(data_input)):
+        Ndeg=data_input[0:(data_input.rfind(".")-2)]
+        Nmin=data_input[(data_input.rfind(".")-2):-1]
+        N=float(Ndeg)+float(Nmin)/60
+    return N
 
+def str2float(string):
+    if not string:
+        return -1.0
+    if string:
+        return float(string)
 
 class SQL:
     """This is for log on a MySQL database and other operations.
@@ -82,10 +93,32 @@ class SQL:
         except:
             self.db.rollback()
 
-    def nmea2sql(self,file_path:str):
+    def nmea2sql(self,file_path:str,get_date:str):
         with open(file_path, encoding='utf-8') as f_in:
             line = f_in.readline()
             temp = line.strip().split(',')
+            time = temp[0]
+            while line:
+                while time == temp[0]:
+                    if 'RMC' in temp[1] and temp[3] == 'A':
+                        lon = sixty2ten(temp[6])
+                        lat = sixty2ten(temp[4])
+                        speed = str2float(temp[8])
+                        course = str2float(temp[9])
+                        date = temp[10]
+                        time = temp[0]
+                    elif 'GGA' in temp[1] and temp[2] != '':
+                        SU = int(temp[8])
+                        HDOP = str2float(temp[9])
+                        height = float(temp[10])
+                    line = f_in.readline()
+                    temp = line.strip().split(',')
+                col = ['Time','Date','Lon','Lat','Speed','Course','SU','HDOP','Height']
+                value = [time,date,lon,lat,speed,course,SU,HDOP,height]
+                self.writein('BASIC'+get_date,col,value)
+        print('Write complete! \n')
+
+
 
 
 
