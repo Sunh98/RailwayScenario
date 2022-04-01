@@ -69,6 +69,7 @@ class SQL:
             print('Fail: it may have other error')
 
     def writein(self, table, column:list, value:list):
+        """This function is used for write data into table"""
         str1 = ''
         str2 = ''
         for col, val in zip(column,value):
