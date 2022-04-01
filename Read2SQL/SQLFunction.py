@@ -1,6 +1,7 @@
 import pymysql
 
 
+
 class SQL:
     """This is for log on a MySQL database and other operations.
        It needs host,user,password,database
@@ -52,15 +53,12 @@ class SQL:
         for col, coltype in zip(column, column_type):
             sql_column = sql_column + str(col) + ' ' + str(coltype) + ','
         sql_column = sql_column[:-1]
-        sql = 'create table %s (id INT AUTO_INCREMENT PRIMARY KEY,' + sql_column + ')'
+        sql = 'create table %s (id INT AUTO_INCREMENT PRIMARY KEY, Time char(20), ' + sql_column + ')'
         sql = sql%table
-        # sql = """CREATE TABLE %s (
-        #   id INT AUTO_INCREMENT PRIMARY KEY,
-        #
-        #   )""" %table
+        # print(sql)
         try:
             self.cursor.execute(sql)
-            print('Success: you have created a new table')
+            print('Success: you have created a new table of %s' %table)
         except pymysql.err.OperationalError:
             self.cursor.execute("DROP TABLE IF EXISTS %s" %table)
             self.cursor.execute(sql)
@@ -83,6 +81,13 @@ class SQL:
             self.db.commit()
         except:
             self.db.rollback()
+
+    def nmea2sql(self,file_path:str):
+        with open(file_path, encoding='utf-8') as f_in:
+            line = f_in.readline()
+            temp = line.strip().split(',')
+
+
 
     def close(self):
         self.db.close()
