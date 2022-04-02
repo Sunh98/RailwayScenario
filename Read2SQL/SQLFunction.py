@@ -111,11 +111,15 @@ class SQL:
                         SU = int(temp[8])
                         HDOP = str2float(temp[9])
                         height = float(temp[10])
+                    elif 'GSV' in temp[1] and int(temp[4]) != 0:
+                        if 'GP' in temp[1]:
+                            for item
                     line = f_in.readline()
                     temp = line.strip().split(',')
                 col = ['Time','Date','Lon','Lat','Speed','Course','SU','HDOP','Height']
                 value = [time,date,lon,lat,speed,course,SU,HDOP,height]
                 self.writein('BASIC'+get_date,col,value)
+                time = temp[0]
         print('Write complete! \n')
 
 

@@ -36,7 +36,7 @@ def BasicCol() ->tuple :
     """
     col = ['Date','Lon','Lat','Speed','Course','SU',
            'HDOP','PDOP','VDOP','Height','Dis','VetDis','AlgDis']
-    col_type = ['char(20)','float','float','double','double','int',
+    col_type = ['char(20)','float(20,15)','float(20,15)','double','double','int',
                 'double','double','double','double','float','float','float']
     return (col,col_type)
 

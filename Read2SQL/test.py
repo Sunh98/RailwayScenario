@@ -13,9 +13,9 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-    NmeaFunc.addtimeP2('伪距差分.txt')
-    mydb = SQL(database='school')
-    a = mydb.readone('GB14',2,'SVSNR')
+    # NmeaFunc.addtimeP2('伪距差分.txt')
+    mydb = SQL(database='ringway')
+    a = mydb.readone('Lon',2,'basic220307')
     b = mydb.readall('GB14','SVSNR')
     #mydb.create_table('kk',['Time','Date'],['char(20)','char(20)'])
     mydb.writein('kk',['Time','Date'],['20','20'])
