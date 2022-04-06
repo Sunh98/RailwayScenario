@@ -13,17 +13,18 @@
 import os
 import sys
 
+
 def Prn(kind):
     kind.upper()
     GPS = ['GP' +'%.2d ' %i for i in range(1 ,31)]
-    BDS = ['GB' +'%.2d ' %i for i in range(1 ,61)]
+    GBS = ['GB' +'%.2d ' %i for i in range(1 ,65)]
     GLO = ['GL' +'%.2d ' %i for i in range(61 ,96)]
     GAL = ['GA' +'%.2d ' %i for i in range(1 ,35)]
     GQ  = ['GQ' +'%.2d ' %i for i in range(90 ,100)]
     if kind == 'GPS':
         return GPS
-    elif kind == 'BDS':
-        return BDS
+    elif kind == 'GBS':
+        return GBS
     elif kind == 'GLO':
         return GLO
     elif kind == 'GAL':
@@ -39,17 +40,17 @@ def BasicCol() ->tuple :
     """
     col = ['Date','Lon','Lat','Speed','Course','SU','status',
            'HDOP','PDOP','VDOP','Height','Dis','VetDis','AlgDis']
-    col_type = ['char(20)','float(20,15)','float(20,15)','double','double','int','int',
+    col_type = ['char(20)','double','double','double','double','int','int',
                 'double','double','double','double','float','float','float']
     return (col,col_type)
 
-def GsvCol() ->tuple :
+def GsvCol(GB = 'GB') ->tuple :
     """
        GPS, BDS, GLO, GAL.
        kind is the system of GNSS
        tuple[0] is column; tuple[1] is column_type
     """
-    kind = ['GPS','BDS','GLO','GAL','GQ']
+    kind = ['GPS','GBS','GLO','GAL','GQ']
     col = []
     col_type = []
     for item in kind:
@@ -102,5 +103,39 @@ def addtimeP2(file_path:str)->str:
             f_out.close()
             print("Success: Have been added time flag!")
     return file_outputpath
+
+
+def spangetnmea(file_path:str):
+    file_outputpath = file_path[:file_path.rfind('.')] + '_new.txt'
+
+    """file operations block"""
+    if os.path.exists(file_outputpath):
+        command = str(input("File is exist, Do you want to delete it and recreate it? (Y/n)\n")).upper()
+        if command == 'Y':
+            os.remove(file_outputpath)
+        elif command == 'N':
+            print('Cancel the operation!\n')
+            sys.exit()
+        else:
+            print('Error: You entered a wrong command!\n ')
+            sys.exit()
+    else:
+        print('File is not exist, will create one\n ')
+
+    with open(file_path,encoding='utf-8') as f_in:
+        with open(file_outputpath, 'a', encoding='utf-8') as f_out:
+            line = f_in.readline()
+            temp = line.strip().split(',')
+            while line:
+                if '$' in temp[0]:
+                    f_out.write(line)
+                line = f_in.readline()
+                temp = line.strip().split(',')
+            f_out.close()
+    return file_outputpath
+
+
+
+
 
 

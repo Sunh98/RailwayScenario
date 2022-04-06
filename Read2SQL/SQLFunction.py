@@ -1,10 +1,12 @@
 import pymysql
+from itertools import chain
 
 def sixty2ten(data_input):
     for i in range(len(data_input)):
         Ndeg=data_input[0:(data_input.rfind(".")-2)]
         Nmin=data_input[(data_input.rfind(".")-2):-1]
         N=float(Ndeg)+float(Nmin)/60
+    print(N)
     return N
 
 def str2float(string):
@@ -60,16 +62,34 @@ class SQL:
         except:
             print('Error: unable to fetch data')
 
-    def readall(self, column, table, type = str):
-        sql = 'select %s from %s' %(column, table)
+    def readall(self, column, table, form = '2D'):#column can be str or list
+        type = None
+        if isinstance(column,str):
+            type = 'str'
+            sql = 'select %s from %s' %(column, table)
+        else:
+            col = ','.join(column)
+            sql = 'select %s from %s' % (col, table)
         try:
             self.cursor.execute(sql)
             """convert 2D tuple to 1D list"""
             """ (('20',),('None',)) -->  ['20',None]  """
-            result = [element[0] for element in self.cursor.fetchall()]
+            result = self.cursor.fetchall()
+            if type == 'str':
+                result = [element[0] for element in result]
+            if form == '1D':
+                result = list(chain.from_iterable(result))
             return result
         except:
             print('Error: unable to fetch data')
+
+    def readall2(self, column:list, table):
+        col = ','.join(column)
+        sql = 'select %s from %s' %(col, table)
+        print(sql)
+        self.cursor.execute(sql)
+        result = self.cursor.fetchall()
+        return result
 
     def create_table(self, table, column:list, column_type:list):
         sql_column = ''
@@ -132,6 +152,8 @@ class SQL:
                     elif 'GSV' in temp[1] and int(temp[4]) != 0:
                         temp[-1] = temp[-1][:temp[-1].rfind('*')]
                         sys = temp[1][1:3]   #confirm the GNSS system
+                        if sys == 'BD':
+                            sys = 'GB'
                         temp = temp[5:]  #remove useless parts
                         for i in range(len(temp)//4):
                             temp_prn = str2int(temp[4 * i + 0])
@@ -145,13 +167,17 @@ class SQL:
                     temp = line.strip().split(',')
                 col = ['Time','Date','Lon','Lat','Speed','Course','SU','status','HDOP','Height']
                 value = [time,date,lon,lat,speed,course,SU,status,HDOP,height]
-                self.writein('BASIC'+get_date,col,value)
+                self.writein('BASIC'+get_date, col, value)
                 self.writein('azi' + get_date, prn, azi)
                 self.writein('ele' + get_date, prn, ele)
                 self.writein('snr' + get_date, prn, snr)
                 time = temp[0]
         print('Write complete! \n')
 
+    def getcol(self,table):
+        self.cursor.execute("select * from %s"%table)
+        col_name_list = [tuple[0] for tuple in self.cursor.description]
+        return col_name_list
 
 
 
