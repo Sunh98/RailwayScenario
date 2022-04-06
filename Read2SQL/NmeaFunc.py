@@ -18,7 +18,8 @@ def Prn(kind):
     GPS = ['GP' +'%.2d ' %i for i in range(1 ,31)]
     BDS = ['GB' +'%.2d ' %i for i in range(1 ,61)]
     GLO = ['GL' +'%.2d ' %i for i in range(61 ,96)]
-    GAL = ['GA' +'%.2d ' %i for i in range(61 ,96)]
+    GAL = ['GA' +'%.2d ' %i for i in range(1 ,35)]
+    GQ  = ['GQ' +'%.2d ' %i for i in range(90 ,100)]
     if kind == 'GPS':
         return GPS
     elif kind == 'BDS':
@@ -27,6 +28,8 @@ def Prn(kind):
         return GLO
     elif kind == 'GAL':
         return GAL
+    elif kind == 'GQ':
+        return GQ
     else:
         return None
 
@@ -34,9 +37,9 @@ def BasicCol() ->tuple :
     """
     tuple[0] is column; tuple[1] is column_type
     """
-    col = ['Date','Lon','Lat','Speed','Course','SU',
+    col = ['Date','Lon','Lat','Speed','Course','SU','status',
            'HDOP','PDOP','VDOP','Height','Dis','VetDis','AlgDis']
-    col_type = ['char(20)','float(20,15)','float(20,15)','double','double','int',
+    col_type = ['char(20)','float(20,15)','float(20,15)','double','double','int','int',
                 'double','double','double','double','float','float','float']
     return (col,col_type)
 
@@ -46,7 +49,7 @@ def GsvCol() ->tuple :
        kind is the system of GNSS
        tuple[0] is column; tuple[1] is column_type
     """
-    kind = ['GPS','BDS','GLO','GAL']
+    kind = ['GPS','BDS','GLO','GAL','GQ']
     col = []
     col_type = []
     for item in kind:

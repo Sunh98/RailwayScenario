@@ -13,6 +13,18 @@ def str2float(string):
     if string:
         return float(string)
 
+def str2int(string):
+    if not string:
+        return -1
+    if string:
+         return int(string)
+
+def removeNone(list1):
+    while '' in list1:
+        list1.remove('')
+    return list1
+
+
 class SQL:
     """This is for log on a MySQL database and other operations.
        It needs host,user,password,database
@@ -87,6 +99,7 @@ class SQL:
         str1 = str1[:-1]
         str2 = str2[:-1]
         sql = 'insert into %s (%s) value (%s)'%(table,str1,str2)
+        print(sql)
         self.cursor.execute(sql)
         try:
             self.db.commit()
@@ -99,6 +112,10 @@ class SQL:
             temp = line.strip().split(',')
             time = temp[0]
             while line:
+                prn = ['Time']
+                azi = [time]
+                ele = [time]
+                snr = [time]
                 while time == temp[0]:
                     if 'RMC' in temp[1] and temp[3] == 'A':
                         lon = sixty2ten(temp[6])
@@ -108,17 +125,30 @@ class SQL:
                         date = temp[10]
                         time = temp[0]
                     elif 'GGA' in temp[1] and temp[2] != '':
+                        status = int(temp[7])
                         SU = int(temp[8])
                         HDOP = str2float(temp[9])
                         height = float(temp[10])
                     elif 'GSV' in temp[1] and int(temp[4]) != 0:
-                        if 'GP' in temp[1]:
-                            for item
+                        temp[-1] = temp[-1][:temp[-1].rfind('*')]
+                        sys = temp[1][1:3]   #confirm the GNSS system
+                        temp = temp[5:]  #remove useless parts
+                        for i in range(len(temp)//4):
+                            temp_prn = str2int(temp[4 * i + 0])
+                            if temp_prn > 100:
+                                temp_prn = temp_prn - 100
+                            prn.append(sys + '%.2d'%temp_prn)
+                            ele.append(str2int(temp[4 * i + 1]))
+                            azi.append(str2int(temp[4 * i + 2]))
+                            snr.append(str2int(temp[4 * i + 3]))
                     line = f_in.readline()
                     temp = line.strip().split(',')
-                col = ['Time','Date','Lon','Lat','Speed','Course','SU','HDOP','Height']
-                value = [time,date,lon,lat,speed,course,SU,HDOP,height]
+                col = ['Time','Date','Lon','Lat','Speed','Course','SU','status','HDOP','Height']
+                value = [time,date,lon,lat,speed,course,SU,status,HDOP,height]
                 self.writein('BASIC'+get_date,col,value)
+                self.writein('azi' + get_date, prn, azi)
+                self.writein('ele' + get_date, prn, ele)
+                self.writein('snr' + get_date, prn, snr)
                 time = temp[0]
         print('Write complete! \n')
 
