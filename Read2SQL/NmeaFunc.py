@@ -18,7 +18,7 @@ def Prn(kind):
     kind.upper()
     GPS = ['GP' +'%.2d ' %i for i in range(1 ,31)]
     GBS = ['GB' +'%.2d ' %i for i in range(1 ,65)]
-    GLO = ['GL' +'%.2d ' %i for i in range(61 ,96)]
+    GLO = ['GL' +'%.2d ' %i for i in range(35 ,60)]
     GAL = ['GA' +'%.2d ' %i for i in range(1 ,35)]
     GQ  = ['GQ' +'%.2d ' %i for i in range(90 ,100)]
     if kind == 'GPS':
@@ -39,9 +39,9 @@ def BasicCol() ->tuple :
     tuple[0] is column; tuple[1] is column_type
     """
     col = ['Date','Lon','Lat','Speed','Course','SU','status',
-           'HDOP','PDOP','VDOP','Height','Dis','VetDis','AlgDis']
+           'HDOP','PDOP','VDOP','Height','Dis','VetDis','AlgDis','clf']
     col_type = ['char(20)','double','double','double','double','int','int',
-                'double','double','double','double','float','float','float']
+                'double','double','double','double','float','float','float','char(20)']
     return (col,col_type)
 
 def GsvCol(GB = 'GB') ->tuple :

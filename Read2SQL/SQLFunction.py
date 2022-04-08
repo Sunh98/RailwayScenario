@@ -1,5 +1,6 @@
 import pymysql
 from itertools import chain
+import sys
 
 def sixty2ten(data_input):
     for i in range(len(data_input)):
@@ -54,7 +55,12 @@ class SQL:
             print('Error: unable to connect database')
 
     def readone(self, column, index, table):
-        sql = 'select %s from %s where id = %d' %(column, table, index)
+        if isinstance(column,str):
+            type = 'str'
+            sql = 'select %s from %s where id = %d' %(column, table, index)
+        else:
+            col = ','.join(column)
+            sql = 'select %s from %s' % (col, table)
         try:
             self.cursor.execute(sql)
             result = self.cursor.fetchone()[0]
@@ -103,9 +109,14 @@ class SQL:
             self.cursor.execute(sql)
             print('Success: you have created a new table of %s' %table)
         except pymysql.err.OperationalError:
-            self.cursor.execute("DROP TABLE IF EXISTS %s" %table)
-            self.cursor.execute(sql)
-            print('Success: you have replace the table of %s' %table)
+            command = str(input("Table is exist, Do you want to delete it and recreate it? (Y/n)\n")).upper()
+            if command == 'Y':
+                self.cursor.execute("DROP TABLE IF EXISTS %s" %table)
+                self.cursor.execute(sql)
+                print('Success: you have replace the table of %s' %table)
+            else:
+                print('Cancel the operation!\n')
+                sys.exit()
         except:
             print('Fail: it may have other error')
 
@@ -144,7 +155,7 @@ class SQL:
                         course = str2float(temp[9])
                         date = temp[10]
                         time = temp[0]
-                    elif 'GGA' in temp[1] and temp[2] != '':
+                    elif 'GGA' in temp[1] and temp[3] != '':
                         status = int(temp[7])
                         SU = int(temp[8])
                         HDOP = str2float(temp[9])
@@ -158,7 +169,7 @@ class SQL:
                         for i in range(len(temp)//4):
                             temp_prn = str2int(temp[4 * i + 0])
                             if temp_prn > 100:
-                                temp_prn = temp_prn - 100
+                                temp_prn = temp_prn - 140
                             prn.append(sys + '%.2d'%temp_prn)
                             ele.append(str2int(temp[4 * i + 1]))
                             azi.append(str2int(temp[4 * i + 2]))
