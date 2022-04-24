@@ -14,6 +14,50 @@ import os
 import sys
 
 
+def ReadGST(nmea_stmt):
+    """
+    smjr_std == Standard deviation of semi-major axis of error ellipse (m)
+    smnr_std == Standard deviation of semi-minor axis of error ellipse (m)
+    orient   == Standard deviation of semi-minor axis of error ellipse (m)
+    lat_std  == Standard deviation of latitude error (m)
+    lon_std  == Standard deviation of longitude error (m)
+    alt_std  == Standard deviation of altitude error (m)
+
+    Example:
+         (GPS only)
+        $GPGST,141451.00,1.18,0.00,0.00,0.0000,0.00,0.00,0.00*6B
+         (Combined GPS and GLONASS)
+        $GNGST,143333.00,7.38,1.49,1.30,68.1409,1.47,1.33,2.07*4A
+    """
+    nmea_list = nmea_stmt.strip().split(',')
+    nmea_dit = {}
+    nmea_dit['alt_std'] = float(nmea_list[-1][:nmea_list[-1].rfind('*')])
+    nmea_dit['lon_std'] = float(nmea_list[-2])
+    nmea_dit['lat_std'] = float(nmea_list[-3])
+    nmea_dit['orient'] = float(nmea_list[-4])
+    nmea_dit['smnr_std'] = float(nmea_list[-5])
+    nmea_dit['smjr_std'] = float(nmea_list[-6])
+    nmea_dit['rms'] = float(nmea_list[-7])
+    nmea_dit['utc'] = nmea_list[-8]
+
+    return nmea_dit
+
+class NMEA:
+    "A nmea data operations"
+    def __init__(self, database=''):
+        if database == '':
+            pass
+        else:
+            self.database = database
+
+
+
+
+
+
+
+
+
 def Prn(kind):
     kind.upper()
     GPS = ['GP' +'%.2d ' %i for i in range(1 ,33)]

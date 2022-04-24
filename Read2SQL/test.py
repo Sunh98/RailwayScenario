@@ -13,6 +13,7 @@ from scipy import stats
 import GeneratePicSQL as GPSQL
 import time
 import pandas as pd
+from NmeaFunc import NMEA
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -23,13 +24,20 @@ def print_hi(name):
 #[696,737,447,486,2241,2282,1988,2017],[4550,4570,5000,5020,5520,5540,7550,7570,8500,8520]
 if __name__ == '__main__':
     mydb = SQL('ringway')
+    mydb.create_table('GST210612',
+                      ['alt_std','lon_std','lat_std','orient','smnr_std','smjr_std','rms','utc'],
+                      ['float','float','float','float','float','float','float','varchar(20)'])
     # section = list(range(1,9976))
     # a = GPSQL.make_matrixandplot_single(mydb, '210612', section,'210612','open')
-
-    a = mydb.readone(['Lon','Lat'],'3','basic210612')
-    name = ['real', 'predict']
-    result = pd.DataFrame(columns=name, data=a)
-    result.to_csv("2.csv")
+    # sql = 'alter table azi201206 modify GP01 INT first '
+    # mydb.cursor.execute(sql)
+    # result = mydb.cursor.fetchall()
+    # x =  '$GPGST,141451.00,1.18,0.00,0.00,0.0000,0.00,0.00,0.00*6B'
+    # NMEA.ReadGST(x)
+    # a = mydb.readone(['Lon','Lat'],'3','basic210612')
+    # name = ['real', 'predict']
+    # result = pd.DataFrame(columns=name, data=a)
+    # result.to_csv("2.csv")
 
     # a = GPSQL.make_matrixandplot(mydb,'220407',[111,158],'new_test')
     # snr = []

@@ -117,8 +117,6 @@ class SQL:
             else:
                 print('Cancel the operation!\n')
                 sys.exit()
-        except:
-            print('Fail: it may have other error')
 
     def writein(self, table, column:list, value:list):
         """This function is used for write data into table"""
@@ -137,7 +135,7 @@ class SQL:
         except:
             self.db.rollback()
 
-    def nmea2sql(self,file_path:str,get_date:str):
+    def nmea2sql(self,file_path:str,get_date:str):   #This def will be removed from this class
         with open(file_path, encoding='utf-8') as f_in:
             date = get_date
             speed = 0
@@ -203,8 +201,6 @@ class SQL:
         self.cursor.execute("select * from %s"%table)
         col_name_list = [tuple[0] for tuple in self.cursor.description]
         return col_name_list
-
-
 
 
     def close(self):
