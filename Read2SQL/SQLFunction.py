@@ -60,10 +60,10 @@ class SQL:
             sql = 'select %s from %s where id = %d' %(column, table, index)
         else:
             col = ','.join(column)
-            sql = 'select %s from %s' % (col, table)
+            sql = 'select %s from %s where clf = %s' % (col, table, index)
         try:
             self.cursor.execute(sql)
-            result = self.cursor.fetchone()[0]
+            result = self.cursor.fetchall()
             return result
         except:
             print('Error: unable to fetch data')
@@ -139,6 +139,9 @@ class SQL:
 
     def nmea2sql(self,file_path:str,get_date:str):
         with open(file_path, encoding='utf-8') as f_in:
+            date = get_date
+            speed = 0
+            course = 0
             line = f_in.readline()
             temp = line.strip().split(',')
             time = temp[0]
@@ -156,10 +159,19 @@ class SQL:
                         date = temp[10]
                         time = temp[0]
                     elif 'GGA' in temp[1] and temp[3] != '':
+                        lon = sixty2ten(temp[5])
+                        lat = sixty2ten(temp[3])
                         status = int(temp[7])
                         SU = int(temp[8])
                         HDOP = str2float(temp[9])
                         height = float(temp[10])
+                    elif 'GST' in temp[1]:
+                        ovl = temp[4]
+                        ovs = temp[5]
+                        ovd = temp[6]
+                        latstd = temp[7]
+                        lonstd = temp[8]
+                        heistd = temp[9][:temp[9].rfind('*')]
                     elif 'GSV' in temp[1] and int(temp[4]) != 0:
                         temp[-1] = temp[-1][:temp[-1].rfind('*')]
                         sys = temp[1][1:3]   #confirm the GNSS system
@@ -169,15 +181,17 @@ class SQL:
                         for i in range(len(temp)//4):
                             temp_prn = str2int(temp[4 * i + 0])
                             if temp_prn > 100:
-                                temp_prn = temp_prn - 140
+                                temp_prn = temp_prn - 100
                             prn.append(sys + '%.2d'%temp_prn)
                             ele.append(str2int(temp[4 * i + 1]))
                             azi.append(str2int(temp[4 * i + 2]))
                             snr.append(str2int(temp[4 * i + 3]))
                     line = f_in.readline()
                     temp = line.strip().split(',')
-                col = ['Time','Date','Lon','Lat','Speed','Course','SU','status','HDOP','Height']
-                value = [time,date,lon,lat,speed,course,SU,status,HDOP,height]
+                col = ['Time','Date','Lon','Lat','Speed','Course','SU','status',
+                       'HDOP','Height','ovl','ovs','ovd','latstd','lonstd','heistd']
+                value = [time,date,lon,lat,speed,course,SU,status,
+                         HDOP,height,ovl,ovs,ovd,latstd,lonstd,heistd]
                 self.writein('BASIC'+get_date, col, value)
                 self.writein('azi' + get_date, prn, azi)
                 self.writein('ele' + get_date, prn, ele)

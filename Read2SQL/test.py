@@ -11,6 +11,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
 import GeneratePicSQL as GPSQL
+import time
+import pandas as pd
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -21,8 +23,15 @@ def print_hi(name):
 #[696,737,447,486,2241,2282,1988,2017],[4550,4570,5000,5020,5520,5540,7550,7570,8500,8520]
 if __name__ == '__main__':
     mydb = SQL('ringway')
-    a = GPSQL.make_matrixandplot(mydb, '220307',[100,120,500,520],'zs8_2','bridge')
+    # section = list(range(1,9976))
+    # a = GPSQL.make_matrixandplot_single(mydb, '210612', section,'210612','open')
 
+    a = mydb.readone(['Lon','Lat'],'3','basic210612')
+    name = ['real', 'predict']
+    result = pd.DataFrame(columns=name, data=a)
+    result.to_csv("2.csv")
+
+    # a = GPSQL.make_matrixandplot(mydb,'220407',[111,158],'new_test')
     # snr = []
     # snr_log = []
     # mydb = SQL("testdb")
