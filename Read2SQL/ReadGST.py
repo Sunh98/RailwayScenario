@@ -14,6 +14,7 @@ from SQLFunction import SQL
 import NmeaFunc
 import os
 import win32ui
+from tqdm import tqdm, trange
 
 def SelectandGet():
     dlg = win32ui.CreateFileDialog(1)
@@ -27,13 +28,18 @@ if __name__ == '__main__':
     date = '210612'
     path_in = SelectandGet()
     with open(path_in, encoding='utf-8') as f_in:
+        count = len(f_in.readlines())
+        f_in.seek(0)
         line = f_in.readline()
         temp = line.strip().split(',')
-        while line:
-            if 'GST' in temp[0]:
-                GST_dict = NmeaFunc.ReadGST(line)
-                mydb.writein('GST' + date, GST_dict)
-            line = f_in.readline()
-            temp = line.strip().split(',')
-        print("Finished Write Into Database!\n")
+        with tqdm(range(count), desc = 'Processing: ') as tbar:
+            while line:
+                if 'GST' in temp[0]:
+                    GST_dict = NmeaFunc.ReadGST(line)
+                    mydb.writein('GST' + date, GST_dict)
+                tbar.update()
+                line = f_in.readline()
+                temp = line.strip().split(',')
+
+            print("Finished Write Into Database!\n")
         f_in.close()
