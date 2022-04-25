@@ -24,9 +24,8 @@ def print_hi(name):
 #[696,737,447,486,2241,2282,1988,2017],[4550,4570,5000,5020,5520,5540,7550,7570,8500,8520]
 if __name__ == '__main__':
     mydb = SQL('ringway')
-    mydb.create_table('GST210612',
-                      ['alt_std','lon_std','lat_std','orient','smnr_std','smjr_std','rms','utc'],
-                      ['float','float','float','float','float','float','float','varchar(20)'])
+    a = NF.GSTDict()
+    mydb.create_table('GST210612', a)
     # section = list(range(1,9976))
     # a = GPSQL.make_matrixandplot_single(mydb, '210612', section,'210612','open')
     # sql = 'alter table azi201206 modify GP01 INT first '

@@ -11,18 +11,35 @@
 """
 from SQLFunction import SQL
 import NmeaFunc
+import os
+import win32ui
+
+def SelectandGet():
+    dlg = win32ui.CreateFileDialog(1)
+    # dlg.SetOFNInitalDir("")
+    dlg.DoModal()
+    path = dlg.GetPathName()
+    return path
 
 if __name__ == '__main__':
     mydb = SQL("ringway")
     date = '201206'
-    mydb.create_table('BASIC'+date, NmeaFunc.BasicCol()[0], NmeaFunc.BasicCol()[1])
+    pathin = SelectandGet()
+    with open(pathin, encoding='utf-8') as f_in:
+        line = f_in.readline()
 
-    #create a basic table
-    mydb.create_table('AZI'+date, NmeaFunc.GsvCol('BD')[0], NmeaFunc.GsvCol()[1])
-    mydb.create_table('ELE'+date, NmeaFunc.GsvCol('BD')[0], NmeaFunc.GsvCol()[1])
-    mydb.create_table('SNR'+date, NmeaFunc.GsvCol('BD')[0], NmeaFunc.GsvCol()[1])
-    mydb.nmea2sql("222.txt", date)
 
+    # with open
+    #
+    #
+    # mydb.create_table('BASIC'+date, NmeaFunc.BasicCol()[0], NmeaFunc.BasicCol()[1])
+    #
+    # #create a basic table
+    # mydb.create_table('AZI'+date, NmeaFunc.GsvCol('BD')[0], NmeaFunc.GsvCol()[1])
+    # mydb.create_table('ELE'+date, NmeaFunc.GsvCol('BD')[0], NmeaFunc.GsvCol()[1])
+    # mydb.create_table('SNR'+date, NmeaFunc.GsvCol('BD')[0], NmeaFunc.GsvCol()[1])
+    # mydb.nmea2sql("222.txt", date)
+    #
 
     print(0)
 

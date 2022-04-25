@@ -97,7 +97,34 @@ class SQL:
         result = self.cursor.fetchall()
         return result
 
-    def create_table(self, table, column:list, column_type:list):
+    def create_table(self, table:str, diction:dict) -> None:
+        '''Create or recreate a new database table
+        Args:
+            table: One of tables in database
+            diction: A dictionary storage column and type of column
+        '''
+        column = ''
+        for column_name, column_type in diction.items():
+            column = column + str(column_name) + ' ' + str(column_type) + ','
+        column = column[:-1] # Remove the extra comma at the end
+        sql = 'create table %s (id INT AUTO_INCREMENT PRIMARY KEY, '+column+')'
+        sql = sql%table
+        try:
+            self.cursor.execute(sql)
+            print('Success: you have created a new table of %s' % table)
+        except pymysql.err.OperationalError:
+            command = str(input("Table is exist, Do you want to delete it and recreate it? (Y/n)\n")).upper()
+            if command == 'Y':
+                self.cursor.execute("DROP TABLE IF EXISTS %s" % table)
+                self.cursor.execute(sql)
+                print('Success: you have replace the table of %s' % table)
+            else:
+                print('Cancel the operation!\n')
+                sys.exit()
+
+
+
+    def create_table2(self, table, column:list, column_type:list):
         sql_column = ''
         for col, coltype in zip(column, column_type):
             sql_column = sql_column + str(col) + ' ' + str(coltype) + ','
@@ -118,7 +145,23 @@ class SQL:
                 print('Cancel the operation!\n')
                 sys.exit()
 
-    def writein(self, table, column:list, value:list):
+    def writein(self, table:str, diction:dict)->None:
+        str1 = ''
+        str2 = ''
+        for key, value in diction.items():
+            str1 = str1 + str(key) + ','
+            str2 = str2 + str(value) + ','
+        str1 = str1[:-1]  #remove extra comma at the end
+        str2 = str2[:-1]
+        sql = 'insert into %s (%s) value (%s)'%(table,str1,str2)
+        self.cursor.execute(sql)
+        try:
+            self.db.commit()
+        except:
+            self.db.rollback()
+
+
+    def writein2(self, table, column:list, value:list):
         """This function is used for write data into table"""
         str1 = ''
         str2 = ''

@@ -13,6 +13,24 @@
 import os
 import sys
 
+def GSTDict() -> dict:
+    """
+        smjr_std == Standard deviation of semi-major axis of error ellipse (m)
+        smnr_std == Standard deviation of semi-minor axis of error ellipse (m)
+        orient   == Standard deviation of semi-minor axis of error ellipse (m)
+        lat_std  == Standard deviation of latitude error (m)
+        lon_std  == Standard deviation of longitude error (m)
+        alt_std  == Standard deviation of altitude error (m)
+    """
+
+    diction = {}
+    column = ['alt_std', 'lon_std', 'lat_std', 'orient',
+              'smnr_std', 'smjr_std', 'rms', 'utc']
+    column_type = ['float', 'float', 'float', 'float',
+                   'float', 'float', 'float', 'varchar(20)']
+    for key, value in zip(column,column_type):
+        diction[key] = value
+    return diction
 
 def ReadGST(nmea_stmt):
     """
@@ -29,6 +47,7 @@ def ReadGST(nmea_stmt):
          (Combined GPS and GLONASS)
         $GNGST,143333.00,7.38,1.49,1.30,68.1409,1.47,1.33,2.07*4A
     """
+
     nmea_list = nmea_stmt.strip().split(',')
     nmea_dit = {}
     nmea_dit['alt_std'] = float(nmea_list[-1][:nmea_list[-1].rfind('*')])
