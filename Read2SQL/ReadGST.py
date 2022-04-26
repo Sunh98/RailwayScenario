@@ -15,6 +15,7 @@ import NmeaFunc
 import os
 import win32ui
 from tqdm import tqdm, trange
+import NmeaFunc as nf
 
 def SelectandGet():
     dlg = win32ui.CreateFileDialog(1)
@@ -25,8 +26,9 @@ def SelectandGet():
 
 if __name__ == '__main__':
     mydb = SQL("ringway")
-    date = '210612'
+    date = '191219'
     path_in = SelectandGet()
+    mydb.create_table('GST'+date,nf.GSTDict())
     with open(path_in, encoding='utf-8') as f_in:
         count = len(f_in.readlines())
         f_in.seek(0)
