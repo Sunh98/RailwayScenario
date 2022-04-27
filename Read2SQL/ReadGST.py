@@ -26,9 +26,10 @@ def SelectandGet():
 
 if __name__ == '__main__':
     mydb = SQL("ringway")
-    date = '191219'
+    date = '210612'
     path_in = SelectandGet()
-    mydb.create_table('GST'+date,nf.GSTDict())
+    # mydb.create_table('GST'+date,nf.GSTDict())
+    mydb.SetIncreament('GST'+date,1)
     with open(path_in, encoding='utf-8') as f_in:
         count = len(f_in.readlines())
         f_in.seek(0)

@@ -178,6 +178,10 @@ class SQL:
         except:
             self.db.rollback()
 
+    def SetIncreament(self, table, value):
+        sql = 'alter table %s auto_increment = %d'%(table, value)
+        self.cursor.execute(sql)
+
     def nmea2sql(self,file_path:str,get_date:str):   #This def will be removed from this class
         with open(file_path, encoding='utf-8') as f_in:
             date = get_date
