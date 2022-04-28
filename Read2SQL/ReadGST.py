@@ -28,8 +28,9 @@ if __name__ == '__main__':
     mydb = SQL("ringway")
     date = '210612'
     path_in = SelectandGet()
-    # mydb.create_table('GST'+date,nf.GSTDict())
-    mydb.SetIncreament('GST'+date,1)
+    table = 'GST'+date
+    mydb.create_table(table,nf.GSTDict())
+    # mydb.SetIncreament('SEPGST'+date,1)
     with open(path_in, encoding='utf-8') as f_in:
         count = len(f_in.readlines())
         f_in.seek(0)
@@ -37,9 +38,9 @@ if __name__ == '__main__':
         temp = line.strip().split(',')
         with tqdm(range(count), desc = 'Processing: ') as tbar:
             while line:
-                if 'GST' in temp[0]:
+                if 'GST' in temp[0] and (temp[2]!='') and temp[1][temp[1].rfind('.')+1:]=='00':
                     GST_dict = NmeaFunc.ReadGST(line)
-                    mydb.writein('GST' + date, GST_dict)
+                    mydb.writein(table, GST_dict)
                 tbar.update()
                 line = f_in.readline()
                 temp = line.strip().split(',')

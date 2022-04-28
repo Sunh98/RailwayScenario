@@ -12,6 +12,7 @@
 
 import os
 import sys
+import datetime
 
 def GSTDict() -> dict:
     """
@@ -57,8 +58,12 @@ def ReadGST(nmea_stmt):
     nmea_dit['smnr_std'] = float(nmea_list[-5])
     nmea_dit['smjr_std'] = float(nmea_list[-6])
     nmea_dit['rms'] = float(nmea_list[-7])
-    nmea_dit['utc'] = nmea_list[-8]
-
+    t = nmea_list[-8]
+    H = int(t[0:2])
+    M = int(t[2:4])
+    S = int(t[4:6])
+    ss = int(t[7:])*10000
+    nmea_dit['utc'] = '"'+datetime.time(H,M,S,ss).strftime("%H:%M:%S.%f")[:-4]+'"'
     return nmea_dit
 
 class NMEA:
