@@ -4,7 +4,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 from SQLFunction import SQL
-import NmeaFunc as NF
+import NmeaFunc
 import seaborn as sns
 import math
 import numpy as np
@@ -23,9 +23,11 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 #[696,737,447,486,2241,2282,1988,2017],[4550,4570,5000,5020,5520,5540,7550,7570,8500,8520]
 if __name__ == '__main__':
-    mydb = SQL('ringway')
-    a = NF.GSTDict()
-    mydb.create_table('GST210612', a)
+    a = '$GNGSA,A,3,21,27,7,8,30,16,1,14,,,,,1.0,0.5,0.8*19'
+    b = NmeaFunc.ReadGSA(a)
+    # mydb = SQL('ringway')
+    # a = NF.GSTDict()
+    # mydb.create_table('GST210612', a)
     # section = list(range(1,9976))
     # a = GPSQL.make_matrixandplot_single(mydb, '210612', section,'210612','open')
     # sql = 'alter table azi201206 modify GP01 INT first '

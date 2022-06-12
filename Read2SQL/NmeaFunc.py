@@ -14,6 +14,46 @@ import os
 import sys
 import datetime
 
+def sixty2ten(data_input):
+    if not data_input:
+        return -1
+    else:
+        for i in range(len(data_input)):
+            Ndeg=data_input[0:(data_input.rfind(".")-2)]
+            Nmin=data_input[(data_input.rfind(".")-2):-1]
+            N=float(Ndeg)+float(Nmin)/60
+        return N
+
+def str2float(string):
+    if not string:
+        return -1.0
+    if string:
+        return float(string)
+
+def str2int(string):
+    if not string:
+        return 0
+    if string:
+        if '*' in string:
+            temp = string[:string.rfind('*')]
+            if not temp:
+                return 0
+            else:
+                return int(temp)
+        else:
+            return int(string)
+
+def standard_time(time_str):
+    if not time_str:
+        return 'NULL'
+    else:
+        H = int(time_str[0:2])
+        M = int(time_str[2:4])
+        S = int(time_str[4:6])
+        ss = int(time_str[7:]) * 10000
+        return '"'+datetime.time(H,M,S,ss).strftime("%H:%M:%S.%f")[:-4]+'"'
+
+
 def GSTDict() -> dict:
     """
         smjr_std == Standard deviation of semi-major axis of error ellipse (m)
@@ -51,20 +91,84 @@ def ReadGST(nmea_stmt):
 
     nmea_list = nmea_stmt.strip().split(',')
     nmea_dit = {}
-    nmea_dit['alt_std'] = float(nmea_list[-1][:nmea_list[-1].rfind('*')])
-    nmea_dit['lon_std'] = float(nmea_list[-2])
-    nmea_dit['lat_std'] = float(nmea_list[-3])
-    nmea_dit['orient'] = float(nmea_list[-4])
-    nmea_dit['smnr_std'] = float(nmea_list[-5])
-    nmea_dit['smjr_std'] = float(nmea_list[-6])
-    nmea_dit['rms'] = float(nmea_list[-7])
-    t = nmea_list[-8]
-    H = int(t[0:2])
-    M = int(t[2:4])
-    S = int(t[4:6])
-    ss = int(t[7:])*10000
-    nmea_dit['utc'] = '"'+datetime.time(H,M,S,ss).strftime("%H:%M:%S.%f")[:-4]+'"'
+    nmea_dit['alt_std'] = str2float(nmea_list[-1][:nmea_list[-1].rfind('*')])
+    nmea_dit['lon_std'] = str2float(nmea_list[-2])
+    nmea_dit['lat_std'] = str2float(nmea_list[-3])
+    nmea_dit['orient'] = str2float(nmea_list[-4])
+    nmea_dit['smnr_std'] = str2float(nmea_list[-5])
+    nmea_dit['smjr_std'] = str2float(nmea_list[-6])
+    nmea_dit['rms'] = str2float(nmea_list[-7])
+
+    nmea_dit['utc'] = standard_time(nmea_list[-8])
     return nmea_dit
+
+def ReadGGA(nmea_stmt):
+    diction = {}
+    temp = nmea_stmt.strip().split(',')
+    diction['Lon'] = sixty2ten(temp[4])
+    diction['Lat'] = sixty2ten(temp[2])
+    diction['status'] = str2int(temp[6])
+    diction['SU'] = str2int(temp[7])
+    diction['HDOP'] = str2float(temp[8])
+    diction['height'] = str2float(temp[9])
+    diction['Time'] = standard_time(temp[1])
+    return diction
+
+def ReadRMC(nmea_stmt):
+    diction = {}
+    temp = nmea_stmt.strip().split(',')
+    diction['speed'] = str2float(temp[7])
+    diction['course'] = str2float(temp[8])
+    return diction
+
+def ReadGSV(nmea_stmt):
+    diction_ele = {}
+    diction_azi = {}
+    diction_snr = {}
+    temp = nmea_stmt.strip().split(',')
+    GNSSsystem = temp[0][1:3]
+    i = 4
+    while(i < len(temp)):
+        if i % 4 == 0:
+            prn = temp[i]
+            if len(prn) == 1:
+                prn = prn.zfill(2)
+            diction_ele[GNSSsystem + prn] = str2int(temp[i + 1])
+            diction_azi[GNSSsystem + prn] = str2int(temp[i + 2])
+            diction_snr[GNSSsystem + prn] = str2int(temp[i + 3])
+        i = i + 4
+    return diction_ele, diction_azi, diction_snr
+
+def ReadGSA(nmea_stmt)->list:
+    temp = nmea_stmt.strip().split(',')
+    new_temp = temp[3:-3]
+    list1 = []
+    for item in new_temp:
+        if item == '':
+            break
+        else:
+            list1.append(item)
+    if len(list1) == 0:
+        return ['null']
+    else:
+        return list1
+
+def ReadGRS(nmea_stmt)->list:
+    temp = nmea_stmt.strip().split(',')
+    new_temp = temp[3:]
+    list1 = []
+    if '*' in new_temp[-1]:
+        new_temp[-1] = new_temp[-1][:new_temp[-1].rfind('*')]
+    for item in new_temp:
+        if item == '':
+            break
+        else:
+            list1.append(item)
+    if len(list1) == 0:
+        return ['null']
+    else:
+        return list1
+
 
 class NMEA:
     "A nmea data operations"
@@ -85,7 +189,7 @@ class NMEA:
 def Prn(kind):
     kind.upper()
     GPS = ['GP' +'%.2d ' %i for i in range(1 ,33)]
-    GBS = ['GB' +'%.2d ' %i for i in range(1 ,65)]
+    GBS = ['GB' +'%.2d ' %i for i in range(100 ,165)]
     GLO = ['GL' +'%.2d ' %i for i in range(60 ,99)]
     GAL = ['GA' +'%.2d ' %i for i in range(1 ,40)]
     GQ  = ['GQ' +'%.2d ' %i for i in range(90 ,100)]
@@ -102,31 +206,51 @@ def Prn(kind):
     else:
         return None
 
-def BasicCol() ->tuple :
+def BasicCol() ->dict :
     """
     tuple[0] is column; tuple[1] is column_type
     """
-    col = ['Date','Lon','Lat','Speed','Course','SU','status',
+    diction = {}
+    col = ['Time','Date','Lon','Lat','Speed','Course','SU','status',
            'HDOP','PDOP','VDOP','Height','Dis','VetDis','AlgDis','clf',
             ]
-    col_type = ['char(20)','double','double','double','double','int','int',
+    col_type = ['char(20)','char(20)','double','double','double','double','int','int',
                 'double','double','double','double','float','float','float','char(20)',
                 'float','float','float','float','float','float']
-    return (col,col_type)
+    for key, value in zip(col,col_type):
+        diction[key] = value
+    return diction
 
-def GsvCol(GB = 'GB') ->tuple :
+def GsvCol(GB = 'GB') ->dict :
     """
        GPS, BDS, GLO, GAL.
        kind is the system of GNSS
        tuple[0] is column; tuple[1] is column_type
     """
+    diction = {}
     kind = ['GPS','GBS','GLO','GAL','GQ']
-    col = []
+    col = ['time']
     col_type = []
     for item in kind:
         col.extend(Prn(item))
     col_type = ['int' for _ in col]
-    return (col,col_type)
+    col_type[0] = 'char(20)'
+    for key, value in zip(col, col_type):
+        diction[key] = value
+    return diction
+
+def PrnCol()->dict:
+    diction = {'time':'char(20)'}
+    diction['prn1'] = 'char(100)'
+    diction['res1'] = 'char(200)'
+    diction['prn2'] = 'char(100)'
+    diction['res2'] = 'char(200)'
+    diction['prn3'] = 'char(100)'
+    diction['res3'] = 'char(200)'
+    diction['prn4'] = 'char(100)'
+    diction['res4'] = 'char(200)'
+    return diction
+
 
 def addtimeP2(file_path:str)->str:
     """add time flag to the nmea data"""

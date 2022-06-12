@@ -68,6 +68,8 @@ class SQL:
         except:
             print('Error: unable to fetch data')
 
+
+
     def readall(self, column, table, form = '2D'):#column can be str or list
         type = None
         if isinstance(column,str):
