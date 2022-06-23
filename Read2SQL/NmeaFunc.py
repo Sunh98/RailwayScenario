@@ -21,7 +21,7 @@ def sixty2ten(data_input):
         for i in range(len(data_input)):
             Ndeg=data_input[0:(data_input.rfind(".")-2)]
             Nmin=data_input[(data_input.rfind(".")-2):-1]
-            N=float(Ndeg)+float(Nmin)/60
+            N=int(Ndeg)+float(Nmin)/60
         return N
 
 def str2float(string):
