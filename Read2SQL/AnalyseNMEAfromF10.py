@@ -25,8 +25,8 @@ def SelectandGet():
 
 if __name__ == '__main__':
     mydb = SQL("ringway")
-    date = '210612P2'
-    device = 'BD980'
+    date = '220117SPAN'
+    device = 'Span'
     path_in = SelectandGet()
     tableList = ['BASIC'+date, 'AZI'+date, 'ELE'+date, 'SNR'+date, 'GST'+date, 'GRS'+date]
     mydb.create_table(tableList[0], NmeaFunc.BasicCol())
@@ -95,7 +95,8 @@ if __name__ == '__main__':
                         prn_list = []
                         res_list = []
                 if flagBit == 'GST':
-                    mydb.writein(tableList[4], NmeaFunc.ReadGST(line))
+                    pass
+                    # mydb.writein(tableList[4], NmeaFunc.ReadGST(line))
                 elif flagBit == 'GGA':
                     current_time = NmeaFunc.ReadGGA(line)['Time']
                     basic_dict = dict(basic_dict,**NmeaFunc.ReadGGA(line))

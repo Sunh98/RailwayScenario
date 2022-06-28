@@ -117,6 +117,8 @@ def ReadGGA(nmea_stmt):
 def ReadRMC(nmea_stmt):
     diction = {}
     temp = nmea_stmt.strip().split(',')
+    diction['Lon'] = sixty2ten(temp[5])
+    diction['Lat'] = sixty2ten(temp[3])
     diction['speed'] = str2float(temp[7])
     diction['course'] = str2float(temp[8])
     return diction
