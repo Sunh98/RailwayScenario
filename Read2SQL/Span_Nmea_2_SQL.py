@@ -25,7 +25,7 @@ def flagCollection(flags):
     flag_list = []
     for flag in flags:
         flag = flag[-3:]
-        if flag not in flag_list:
+        if flag not in flag_list and flag != 'GRS':
             flag_list.append(flag)
     return flag_list
 
@@ -43,8 +43,8 @@ def dataBlock2Sql(buffer):
     return (basic_dict)
 
 if __name__ == '__main__':
-    mydb = SQL("ringway")
-    date = '220117SPAN'
+    mydb = SQL("lab220630")
+    date = 'P2'
     input_path = SelectandGet()
 
     mydb.create_table('BASIC'+date, NmeaFunc.BasicCol())
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         f_in.seek(0)   #文件指针位置归零
         #  查询数据块标志位
         flags = []
-        for i in range(30):
+        for i in range(200):
             line = f_in.readline()
             temp = line.strip().split(',')  # 扒皮
             if not line:
@@ -72,7 +72,7 @@ if __name__ == '__main__':
             line = f_in.readline()
             temp = line.strip().split(',')  # 扒皮
             while line:
-                if temp[0][-3:] not in flag_list_process:
+                if temp[0][-3:] not in flag_list_process and temp[0][-3:]!='GRS':
                     flag_list_process.append(temp[0][-3:])
                 buffer.append(line)
                 line = f_in.readline()
