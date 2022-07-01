@@ -36,99 +36,99 @@ def padList(res_list, list_length, azi_list, ele_list, snr_list):
     ele_list = pad_or_truncate(ele_list, list_length, ele_value)
     snr_list = pad_or_truncate(snr_list, list_length, snr_value)
 
-    return  azi_list + ele_list + snr_list
+    return  res_list + azi_list + ele_list + snr_list
 
 
 
 
 if __name__ == '__main__':
-    mydb = SQL("ringway")
+    mydb = SQL("ex220630")
     input_list = []
     output_list = []
-    for i in range(2527,32528):  #50000,70001   2527,32528
+    for i in range(1,536):  #50000,70001   2527,32528
 
         input_epoch = []
-        sql = 'select time from grs210612f10 where id = %d' %i
+        sql = 'select time from grssep where id = %d' %i
         mydb.cursor.execute(sql)
         time = mydb.cursor.fetchone()[0]
         if time[time.rfind('.')+1:] != '00':
             continue
-        sql = 'select prn1,prn2,prn3 from grs210612f10 where id = %d' % i
+        sql = 'select prn1,prn2,prn3 from grssep where id = %d' % i
         mydb.cursor.execute(sql)
         prn_list = mydb.cursor.fetchone()
-        sql = 'select res1,res2,res3 from grs210612f10 where id = %d' % i
+        sql = 'select res1,res2,res3 from grssep where id = %d' % i
         mydb.cursor.execute(sql)
         res_list = mydb.cursor.fetchone()
 
-        # sql = 'select Lon, Lat from basic210612f10 where time = %s' % ("'"+time+"'")
-        # mydb.cursor.execute(sql)
-        # pos_train = np.array(mydb.cursor.fetchone())
-        #
-        # sql = 'select Lon, Lat from basic210612p2 where time = %s' % ("'"+time+"'")
-        # mydb.cursor.execute(sql)
-        # pos_true = np.array(mydb.cursor.fetchone())
-        # if pos_true is None:
-        #     pass
-        # print(time,pos_train, pos_true)
-        # # delta_pos = list((pos_true - pos_train)*100000)
-        # output_list.append(list(pos_true)+list(pos_train))
+        sql = 'select Lon, Lat from basicsep where time = %s' % ("'"+time+"'")
+        mydb.cursor.execute(sql)
+        pos_train = np.array(mydb.cursor.fetchone())
+
+        sql = 'select Lon, Lat from basicxpro where time = %s' % ("'"+time+"'")
+        mydb.cursor.execute(sql)
+        pos_true = np.array(mydb.cursor.fetchone())
+        if pos_true is None:
+            pass
+        print(time,pos_train, pos_true)
+        delta_pos = list((pos_true - pos_train) * 100000)
+        output_list.append(delta_pos)
 
         prn_gp = prn_list[0].split(',')
-        prn_gl = prn_list[1].split(',')
-        prn_gb = prn_list[2].split(',')
+        prn_gb = prn_list[1].split(',')
+        # prn_gb = prn_list[2].split(',')
         res_gp = res_list[0].split(',')
-        res_gl = res_list[1].split(',')
-        res_gb = res_list[2].split(',')
+        res_gb = res_list[1].split(',')
+        # res_gb = res_list[2].split(',')
 
         allres = []  # All of parameters list in each epoch.
         allazi = []
         allele = []
         allsnr = []
 
-        allres = res_gp + res_gl + res_gb
+        allres = res_gp + res_gb #  res_gp + res_gl + res_gb
         allres = list(map(float,allres))
 
 
         for index, item in enumerate(prn_gp):
             if len(item)<2:
                 item = item.zfill(2)
-            sql = 'select %s from azi210612f10 where id = %d' % ('GP' + item, i)
+            sql = 'select %s from azisep where id = %d' % ('GP' + item, i)
             mydb.cursor.execute(sql)
             azi = mydb.cursor.fetchone()[0]/360
-            sql = 'select %s from ele210612f10 where id = %d' % ('GP' + item, i)
+            sql = 'select %s from elesep where id = %d' % ('GP' + item, i)
             mydb.cursor.execute(sql)
             ele = mydb.cursor.fetchone()[0]/90
-            sql = 'select %s from snr210612f10 where id = %d' % ('GP' + item, i)
+            sql = 'select %s from snrsep where id = %d' % ('GP' + item, i)
             mydb.cursor.execute(sql)
             snr = mydb.cursor.fetchone()[0] / 55
             allazi.append(azi)
             allele.append(ele)
             allsnr.append(snr)
-        for index, item in enumerate(prn_gl):
-            if len(item)<2:
-                item = item.zfill(2)
-            sql = 'select %s from azi210612f10 where id = %d' % ('GL' + item, i)
-            mydb.cursor.execute(sql)
-            azi = mydb.cursor.fetchone()[0]/360
-            sql = 'select %s from ele210612f10 where id = %d' % ('GL' + item, i)
-            mydb.cursor.execute(sql)
-            ele = mydb.cursor.fetchone()[0]/90
-            sql = 'select %s from snr210612f10 where id = %d' % ('GL' + item, i)
-            mydb.cursor.execute(sql)
-            snr = mydb.cursor.fetchone()[0] / 55
-            allazi.append(azi)
-            allele.append(ele)
-            allsnr.append(snr)
+        # for index, item in enumerate(prn_gl):
+        #     if len(item)<2:
+        #         item = item.zfill(2)
+        #     sql = 'select %s from azi210612f10 where id = %d' % ('GL' + item, i)
+        #     mydb.cursor.execute(sql)
+        #     azi = mydb.cursor.fetchone()[0]/360
+        #     sql = 'select %s from ele210612f10 where id = %d' % ('GL' + item, i)
+        #     mydb.cursor.execute(sql)
+        #     ele = mydb.cursor.fetchone()[0]/90
+        #     sql = 'select %s from snr210612f10 where id = %d' % ('GL' + item, i)
+        #     mydb.cursor.execute(sql)
+        #     snr = mydb.cursor.fetchone()[0] / 55
+        #     allazi.append(azi)
+        #     allele.append(ele)
+        #     allsnr.append(snr)
         for index, item in enumerate(prn_gb):
             if len(item)<2:
                 item = item.zfill(2)
-            sql = 'select %s from azi210612f10 where id = %d' % ('GB' + item, i)
+            sql = 'select %s from azisep where id = %d' % ('GB' + item, i)
             mydb.cursor.execute(sql)
             azi = mydb.cursor.fetchone()[0]/360
-            sql = 'select %s from ele210612f10 where id = %d' % ('GB' + item, i)
+            sql = 'select %s from elesep where id = %d' % ('GB' + item, i)
             mydb.cursor.execute(sql)
             ele = mydb.cursor.fetchone()[0]/90
-            sql = 'select %s from snr210612f10 where id = %d' % ('GB' + item, i)
+            sql = 'select %s from snrsep where id = %d' % ('GB' + item, i)
             mydb.cursor.execute(sql)
             snr = mydb.cursor.fetchone()[0] / 55
             allazi.append(azi)
@@ -141,9 +141,9 @@ if __name__ == '__main__':
         input_list.append(input_epoch)
 
     input_list = np.array(input_list)
-    # output_list = np.array(output_list)
-    np.savetxt('trainfea4.txt', input_list, fmt='%.3f')
-    # np.savetxt('posall.txt', output_list, fmt='%.10f')
+    output_list = np.array(output_list)
+    np.savetxt('fea_sep_0629.txt', input_list, fmt='%.3f')
+    np.savetxt('pos_sep_0629.txt', output_list, fmt='%.10f')
 
 
 

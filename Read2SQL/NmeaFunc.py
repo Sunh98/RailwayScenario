@@ -133,6 +133,7 @@ def ReadRMC(nmea_stmt):
     diction['Lat'] = sixty2ten(temp[3])
     diction['speed'] = str2float(temp[7])
     diction['course'] = str2float(temp[8])
+    diction['Date'] = temp[9]
     return diction
 
 def ReadGSV(nmea_stmt):
@@ -140,13 +141,16 @@ def ReadGSV(nmea_stmt):
     diction_azi = {}
     diction_snr = {}
     temp = nmea_stmt.strip().split(',')
-    GNSSsystem = temp[0][1:3]
+    GNSSsystem = GnssName(temp[0][1:3])
     i = 4
     while(i < len(temp)):
         if i % 4 == 0:
             prn = temp[i]
             if len(prn) == 1:
                 prn = prn.zfill(2)
+            elif len(prn) == 0:
+                i = i+4
+                continue
             diction_ele[GNSSsystem + prn] = str2int(temp[i + 1])
             diction_azi[GNSSsystem + prn] = str2int(temp[i + 2])
             diction_snr[GNSSsystem + prn] = str2int(temp[i + 3])
@@ -196,17 +200,31 @@ class NMEA:
 
 
 
+def GnssName(gnss_name):
+    if gnss_name == 'BD':
+        gnss_name = 'GB'
+    elif gnss_name == 'QZ':
+        gnss_name = 'GQ'
+    else:
+        pass
+    return gnss_name
 
 
 
-
-def Prn(kind):
+def Prn(kind, device):
     kind.upper()
-    GPS = ['GP' +'%.2d ' %i for i in range(1 ,33)]
-    GBS = ['GB' +'%.2d ' %i for i in range(100 ,165)]
-    GLO = ['GL' +'%.2d ' %i for i in range(60 ,99)]
-    GAL = ['GA' +'%.2d ' %i for i in range(1 ,40)]
-    GQ  = ['GQ' +'%.2d ' %i for i in range(90 ,100)]
+    if device == 'Xpro':
+        GPS = ['GP'+'%.2d' %i for i in range(1, 32)]
+        GBS = ['GB'+'%.2d' %i for i in range(140 ,199)]
+        GLO = ['GL'+'%.2d' %i for i in range(35, 65)]
+        GAL = ['GA' +'%.2d ' %i for i in range(1 ,40)]
+        GQ = ['GQ' +'%.2d ' %i for i in range(190 ,199)]
+    elif device == 'Sep':
+        GPS = ['GP' + '%.2d' % i for i in range(1, 32)]
+        GBS = ['GB' + '%.2d' % i for i in range(1, 63)]
+        GLO = ['GL' + '%.2d' % i for i in range(35, 65)]
+        GAL = ['GA' + '%.2d ' % i for i in range(1, 40)]
+        GQ = ['GQ' + '%.2d ' % i for i in range(190, 199)]
     if kind == 'GPS':
         return GPS
     elif kind == 'GBS':
@@ -235,7 +253,7 @@ def BasicCol() ->dict :
         diction[key] = value
     return diction
 
-def GsvCol(GB = 'GB') ->dict :
+def GsvCol(device) ->dict :
     """
        GPS, BDS, GLO, GAL.
        kind is the system of GNSS
@@ -243,18 +261,19 @@ def GsvCol(GB = 'GB') ->dict :
     """
     diction = {}
     kind = ['GPS','GBS','GLO','GAL','GQ']
-    col = ['time']
+    col = ['Time','Timestamp']
     col_type = []
     for item in kind:
-        col.extend(Prn(item))
+        col.extend(Prn(item,device))
     col_type = ['int' for _ in col]
     col_type[0] = 'char(20)'
+    col_type[1] = 'int'
     for key, value in zip(col, col_type):
         diction[key] = value
     return diction
 
 def PrnCol()->dict:
-    diction = {'time':'char(20)'}
+    diction = {'time':'char(20)', 'Timestamp':'int'}
     diction['prn1'] = 'char(100)'
     diction['res1'] = 'char(200)'
     diction['prn2'] = 'char(100)'

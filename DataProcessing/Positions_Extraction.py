@@ -16,23 +16,23 @@ import numpy as np
 import os
 
 if __name__ == '__main__':
-    mydb = SQL('lab220630')
+    mydb = SQL('ex220630')
 
-    sql = 'select Timestamp, Lon, Lat from basicp2 where status = 4'
+    sql = 'select Timestamp, Lon, Lat from basicxpro'
     mydb.cursor.execute(sql)
     result = mydb.cursor.fetchall()
 
     fake_pos = []
     for epoch in result:
         time_stamp = epoch[0]
-        sql = 'select Lon, Lat from basicf2 where timeStamp = %d' %time_stamp
+        sql = 'select Lon, Lat from basicsep where timeStamp = %d' %time_stamp
         mydb.cursor.execute(sql)
         search_result = mydb.cursor.fetchone()
         fake_pos.append(search_result)
 
     # true_pos = np.array(result)
     # fake_pos = np.array(fake_pos)
-    path = 'pos_220630_lab.txt'
+    path = 'pos_220629_ex.txt'
     if os.path.exists(path):
         os.remove(path)
     with open(path,'a+') as f_out:
